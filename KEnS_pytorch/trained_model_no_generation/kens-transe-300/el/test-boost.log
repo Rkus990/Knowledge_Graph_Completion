@@ -1,0 +1,12 @@
+2022-05-13 20:14:44 INFO     === Boosting
+2022-05-13 20:14:44 INFO     target_lang: el
+2022-05-13 20:14:44 INFO     Hits@10 (1017 triples)(filt): 0.5929
+2022-05-13 20:14:44 INFO     Hits@10 (1017 triples)(filt): 0.0108
+2022-05-13 20:14:45 INFO     Hits@10 (1017 triples)(filt): 0.0029
+2022-05-13 20:14:45 INFO     Hits@10 (1017 triples)(filt): 0.0108
+2022-05-13 20:14:45 INFO     Hits@10 (1017 triples)(filt): 0.0128
+2022-05-13 20:14:54 INFO     [el]
+2022-05-13 20:14:54 INFO     === boosting
+2022-05-13 20:14:54 INFO     Hits@10 (1017 triples): 0.5683
+2022-05-13 20:14:54 INFO     Hits@3 (1017 triples): 0.3727
+2022-05-13 20:14:54 INFO     Hits@1 (1017 triples): 0.1032

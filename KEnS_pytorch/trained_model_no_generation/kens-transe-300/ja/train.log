@@ -1,0 +1,122 @@
+2022-05-13 18:56:05 INFO     Knowledge model: transe
+2022-05-13 18:56:05 INFO     target language: ja
+2022-05-13 18:56:05 INFO     dim: 300
+2022-05-13 18:56:05 INFO     lr: 0.001
+2022-05-13 18:56:09 INFO     Epoch: 0
+2022-05-13 18:56:11 INFO     KG ja Epoch 0 [Train KG Loss 0.658708|
+2022-05-13 18:56:11 INFO     KG ja Epoch 1 [Train KG Loss 0.462035|
+2022-05-13 18:56:12 INFO     KG ja Epoch 2 [Train KG Loss 0.310719|
+2022-05-13 18:56:12 INFO     KG ja Epoch 3 [Train KG Loss 0.204845|
+2022-05-13 18:56:12 INFO     KG ja Epoch 4 [Train KG Loss 0.137906|
+2022-05-13 18:56:12 INFO     KG ja Epoch 5 [Train KG Loss 0.097094|
+2022-05-13 18:56:12 INFO     KG ja Epoch 6 [Train KG Loss 0.069126|
+2022-05-13 18:56:12 INFO     KG ja Epoch 7 [Train KG Loss 0.051161|
+2022-05-13 18:56:12 INFO     KG ja Epoch 8 [Train KG Loss 0.038761|
+2022-05-13 18:56:12 INFO     KG ja Epoch 9 [Train KG Loss 0.030107|
+2022-05-13 18:56:12 INFO     KG fr Epoch 0 [Train KG Loss 0.490622|
+2022-05-13 18:56:13 INFO     KG fr Epoch 1 [Train KG Loss 0.170801|
+2022-05-13 18:56:13 INFO     KG fr Epoch 2 [Train KG Loss 0.078564|
+2022-05-13 18:56:13 INFO     KG fr Epoch 3 [Train KG Loss 0.047469|
+2022-05-13 18:56:13 INFO     KG fr Epoch 4 [Train KG Loss 0.033003|
+2022-05-13 18:56:14 INFO     KG fr Epoch 5 [Train KG Loss 0.025378|
+2022-05-13 18:56:14 INFO     KG fr Epoch 6 [Train KG Loss 0.019916|
+2022-05-13 18:56:14 INFO     KG fr Epoch 7 [Train KG Loss 0.016465|
+2022-05-13 18:56:14 INFO     KG fr Epoch 8 [Train KG Loss 0.014160|
+2022-05-13 18:56:14 INFO     KG fr Epoch 9 [Train KG Loss 0.012149|
+2022-05-13 18:56:15 INFO     KG es Epoch 0 [Train KG Loss 0.477396|
+2022-05-13 18:56:15 INFO     KG es Epoch 1 [Train KG Loss 0.167314|
+2022-05-13 18:56:15 INFO     KG es Epoch 2 [Train KG Loss 0.076325|
+2022-05-13 18:56:16 INFO     KG es Epoch 3 [Train KG Loss 0.047519|
+2022-05-13 18:56:16 INFO     KG es Epoch 4 [Train KG Loss 0.034656|
+2022-05-13 18:56:16 INFO     KG es Epoch 5 [Train KG Loss 0.026768|
+2022-05-13 18:56:16 INFO     KG es Epoch 6 [Train KG Loss 0.021433|
+2022-05-13 18:56:17 INFO     KG es Epoch 7 [Train KG Loss 0.017399|
+2022-05-13 18:56:17 INFO     KG es Epoch 8 [Train KG Loss 0.014987|
+2022-05-13 18:56:17 INFO     KG es Epoch 9 [Train KG Loss 0.013104|
+2022-05-13 18:56:17 INFO     KG el Epoch 0 [Train KG Loss 0.593230|
+2022-05-13 18:56:18 INFO     KG el Epoch 1 [Train KG Loss 0.418783|
+2022-05-13 18:56:18 INFO     KG el Epoch 2 [Train KG Loss 0.285540|
+2022-05-13 18:56:18 INFO     KG el Epoch 3 [Train KG Loss 0.189387|
+2022-05-13 18:56:18 INFO     KG el Epoch 4 [Train KG Loss 0.127282|
+2022-05-13 18:56:18 INFO     KG el Epoch 5 [Train KG Loss 0.087142|
+2022-05-13 18:56:18 INFO     KG el Epoch 6 [Train KG Loss 0.063777|
+2022-05-13 18:56:18 INFO     KG el Epoch 7 [Train KG Loss 0.047909|
+2022-05-13 18:56:18 INFO     KG el Epoch 8 [Train KG Loss 0.037239|
+2022-05-13 18:56:18 INFO     KG el Epoch 9 [Train KG Loss 0.030657|
+2022-05-13 18:56:19 INFO     KG en Epoch 0 [Train KG Loss 0.436584|
+2022-05-13 18:56:19 INFO     KG en Epoch 1 [Train KG Loss 0.148168|
+2022-05-13 18:56:20 INFO     KG en Epoch 2 [Train KG Loss 0.073717|
+2022-05-13 18:56:21 INFO     KG en Epoch 3 [Train KG Loss 0.044657|
+2022-05-13 18:56:21 INFO     KG en Epoch 4 [Train KG Loss 0.029712|
+2022-05-13 18:56:22 INFO     KG en Epoch 5 [Train KG Loss 0.020704|
+2022-05-13 18:56:22 INFO     KG en Epoch 6 [Train KG Loss 0.015645|
+2022-05-13 18:56:23 INFO     KG en Epoch 7 [Train KG Loss 0.012250|
+2022-05-13 18:56:23 INFO     KG en Epoch 8 [Train KG Loss 0.009929|
+2022-05-13 18:56:24 INFO     KG en Epoch 9 [Train KG Loss 0.008344|
+2022-05-13 18:56:24 INFO     === round 0
+2022-05-13 18:56:24 INFO     [ja]
+2022-05-13 18:56:25 INFO     Hits@10 (1000 triples): 0.413000
+2022-05-13 18:56:26 INFO     Hits@10 (2162 triples) by itself: 0.450971
+2022-05-13 18:56:26 INFO     Hits@10 (2162 triples) from KG fr: 0.006475
+2022-05-13 18:56:26 INFO     Hits@10 (2162 triples) from KG es: 0.005550
+2022-05-13 18:56:27 INFO     Hits@10 (2162 triples) from KG el: 0.004163
+2022-05-13 18:56:27 INFO     Hits@10 (2162 triples) from KG en: 0.016189
+2022-05-13 18:56:27 INFO     Epoch: 1
+2022-05-13 18:56:27 INFO     KG ja Epoch 0 [Train KG Loss 0.021349|
+2022-05-13 18:56:27 INFO     KG ja Epoch 1 [Train KG Loss 0.014966|
+2022-05-13 18:56:27 INFO     KG ja Epoch 2 [Train KG Loss 0.010260|
+2022-05-13 18:56:27 INFO     KG ja Epoch 3 [Train KG Loss 0.007684|
+2022-05-13 18:56:27 INFO     KG ja Epoch 4 [Train KG Loss 0.005917|
+2022-05-13 18:56:28 INFO     KG ja Epoch 5 [Train KG Loss 0.004789|
+2022-05-13 18:56:28 INFO     KG ja Epoch 6 [Train KG Loss 0.004018|
+2022-05-13 18:56:28 INFO     KG ja Epoch 7 [Train KG Loss 0.003447|
+2022-05-13 18:56:28 INFO     KG ja Epoch 8 [Train KG Loss 0.003337|
+2022-05-13 18:56:28 INFO     KG ja Epoch 9 [Train KG Loss 0.003087|
+2022-05-13 18:56:28 INFO     KG fr Epoch 0 [Train KG Loss 0.011218|
+2022-05-13 18:56:29 INFO     KG fr Epoch 1 [Train KG Loss 0.009004|
+2022-05-13 18:56:29 INFO     KG fr Epoch 2 [Train KG Loss 0.007484|
+2022-05-13 18:56:29 INFO     KG fr Epoch 3 [Train KG Loss 0.006325|
+2022-05-13 18:56:30 INFO     KG fr Epoch 4 [Train KG Loss 0.005369|
+2022-05-13 18:56:30 INFO     KG fr Epoch 5 [Train KG Loss 0.004658|
+2022-05-13 18:56:30 INFO     KG fr Epoch 6 [Train KG Loss 0.004192|
+2022-05-13 18:56:31 INFO     KG fr Epoch 7 [Train KG Loss 0.003843|
+2022-05-13 18:56:31 INFO     KG fr Epoch 8 [Train KG Loss 0.003323|
+2022-05-13 18:56:31 INFO     KG fr Epoch 9 [Train KG Loss 0.003082|
+2022-05-13 18:56:32 INFO     KG es Epoch 0 [Train KG Loss 0.011738|
+2022-05-13 18:56:32 INFO     KG es Epoch 1 [Train KG Loss 0.009477|
+2022-05-13 18:56:32 INFO     KG es Epoch 2 [Train KG Loss 0.007694|
+2022-05-13 18:56:33 INFO     KG es Epoch 3 [Train KG Loss 0.006301|
+2022-05-13 18:56:33 INFO     KG es Epoch 4 [Train KG Loss 0.005474|
+2022-05-13 18:56:33 INFO     KG es Epoch 5 [Train KG Loss 0.004738|
+2022-05-13 18:56:34 INFO     KG es Epoch 6 [Train KG Loss 0.004396|
+2022-05-13 18:56:34 INFO     KG es Epoch 7 [Train KG Loss 0.003847|
+2022-05-13 18:56:34 INFO     KG es Epoch 8 [Train KG Loss 0.003696|
+2022-05-13 18:56:35 INFO     KG es Epoch 9 [Train KG Loss 0.003123|
+2022-05-13 18:56:35 INFO     KG el Epoch 0 [Train KG Loss 0.022713|
+2022-05-13 18:56:35 INFO     KG el Epoch 1 [Train KG Loss 0.015526|
+2022-05-13 18:56:35 INFO     KG el Epoch 2 [Train KG Loss 0.010410|
+2022-05-13 18:56:35 INFO     KG el Epoch 3 [Train KG Loss 0.007149|
+2022-05-13 18:56:35 INFO     KG el Epoch 4 [Train KG Loss 0.005630|
+2022-05-13 18:56:35 INFO     KG el Epoch 5 [Train KG Loss 0.004380|
+2022-05-13 18:56:35 INFO     KG el Epoch 6 [Train KG Loss 0.004226|
+2022-05-13 18:56:36 INFO     KG el Epoch 7 [Train KG Loss 0.003355|
+2022-05-13 18:56:36 INFO     KG el Epoch 8 [Train KG Loss 0.002967|
+2022-05-13 18:56:36 INFO     KG el Epoch 9 [Train KG Loss 0.002718|
+2022-05-13 18:56:36 INFO     KG en Epoch 0 [Train KG Loss 0.007620|
+2022-05-13 18:56:37 INFO     KG en Epoch 1 [Train KG Loss 0.006124|
+2022-05-13 18:56:37 INFO     KG en Epoch 2 [Train KG Loss 0.004989|
+2022-05-13 18:56:38 INFO     KG en Epoch 3 [Train KG Loss 0.004263|
+2022-05-13 18:56:39 INFO     KG en Epoch 4 [Train KG Loss 0.003695|
+2022-05-13 18:56:39 INFO     KG en Epoch 5 [Train KG Loss 0.003263|
+2022-05-13 18:56:40 INFO     KG en Epoch 6 [Train KG Loss 0.002907|
+2022-05-13 18:56:40 INFO     KG en Epoch 7 [Train KG Loss 0.002682|
+2022-05-13 18:56:41 INFO     KG en Epoch 8 [Train KG Loss 0.002477|
+2022-05-13 18:56:42 INFO     KG en Epoch 9 [Train KG Loss 0.002369|
+2022-05-13 18:56:42 INFO     === round 1
+2022-05-13 18:56:42 INFO     [ja]
+2022-05-13 18:56:43 INFO     Hits@10 (2162 triples): 0.533765
+2022-05-13 18:56:44 INFO     Hits@10 (2162 triples) by itself: 0.541628
+2022-05-13 18:56:44 INFO     Hits@10 (2162 triples) from KG fr: 0.007401
+2022-05-13 18:56:44 INFO     Hits@10 (2162 triples) from KG es: 0.006475
+2022-05-13 18:56:45 INFO     Hits@10 (2162 triples) from KG el: 0.004163
+2022-05-13 18:56:45 INFO     Hits@10 (2162 triples) from KG en: 0.015264
