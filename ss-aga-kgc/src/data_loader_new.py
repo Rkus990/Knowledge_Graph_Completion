@@ -8,8 +8,10 @@ from torch.utils.data import Dataset
 import torch
 from src.utils import get_language_list, get_subgraph_list, subgrarph_list_from_alignment
 import copy
+from transformers import BertTokenizer
+from tqdm import tqdm
 
-
+bert_tokenizer = BertTokenizer.from_pretrained("bert-base-multilingual-cased")
 
 class ParseData(object):
     def __init__(self, args):
@@ -23,7 +25,7 @@ class ParseData(object):
         self.kg_names = get_language_list(self.data_path) # all kg names, sorted
         self.num_kgs = len(self.kg_names)
 
-
+        self.text_entities = self.entities_list()
 
     def load_data(self):
         '''
@@ -178,4 +180,40 @@ class ParseData(object):
         return torch.LongTensor(triples_train), torch.LongTensor(triples_val), torch.LongTensor(triples_test), entity_num, relation_num
 
 
+    def entities_list(self):
+        """
+        Load entities from file
+        :return: entities (n_entity, ) np.int np.array
+        """
+        languages = ['el', 'en', 'es', 'fr', 'ja']
 
+        all_lang_entities = [l + '.tsv' for l in languages]
+
+        all_input_ids = []
+        all_attn_masks = []
+        for f in all_lang_entities:
+            entities = pd.read_csv(join(self.data_entity, f), sep='\t', header=None).values.astype(str).squeeze()
+            for en in tqdm(entities):
+                input_ids, attn_mask = self.bert_tokenize(en[en.find("resource") + len("resource/"):])
+                all_input_ids.append(input_ids)
+                all_attn_masks.append(attn_mask)
+        
+        all_input_ids = torch.tensor(all_input_ids, dtype=torch.long)
+        all_attn_masks = torch.tensor(all_attn_masks, dtype=torch.long)
+
+        return all_input_ids, all_attn_masks
+
+    def bert_tokenize(self, text):
+        encoded = bert_tokenizer.encode_plus(
+            text=text,  # the sentence to be encoded
+            add_special_tokens=True,  # Add [CLS] and [SEP]
+            max_length = 10,  # maximum length of a sentence
+            pad_to_max_length=True,  # Add [PAD]s
+            return_attention_mask = True,  # Generate the attention mask
+            truncation = True,
+            # return_tensors = 'pt',  # ask the function to return PyTorch tensors
+        )
+        input_ids = encoded['input_ids']
+        attn_mask = encoded['attention_mask']
+        
+        return input_ids, attn_mask

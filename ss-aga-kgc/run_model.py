@@ -92,6 +92,7 @@ def parse_args(args=None):
     parser.add_argument('--epoch2', default=2, type=int, help="how many align model epoch to train before switching to knowledge model")
     parser.add_argument('--epoch11', default=2, type=int, help="how many knowledge model epochs for each supporter KG")
     parser.add_argument('--epoch10', default=3, type=int, help="how many knowledge model epochs for the target KG")
+    parser.add_argument('--start_align_train_epoch', default=4, type=int,help="how many rounds to start align train")
     parser.add_argument('--round', default=25, type=int,help="how many rounds to train")
     parser.add_argument('--lr', '--learning_rate', default=5e-3, type=float, help="learning rate for knowledge model")
     parser.add_argument('--align_lr', default=1e-3, type=float, help="learning rate for alignment model")
@@ -124,8 +125,9 @@ def set_args(args):
         args.encoder_hdim_align = 256
         args.dim = 256
         args.round = 25
-        args.burin_in_epoch=15
-        args.generation_freq=5
+        args.burin_in_epoch=1
+        args.generation_freq=1
+        args.start_align_train_epoch = 4
 
 
     return args
@@ -245,6 +247,7 @@ def main(args):
     args.num_relations = dataset.num_relations
     args.num_entities = dataset.num_entities
     args.num_kgs = dataset.num_kgs
+    text_entities = dataset.text_entities
     del dataset
 
     # supporter KG use all links (train and val) to train
@@ -277,7 +280,7 @@ def main(args):
 
 
     # Build Model
-    model = SSAGA(args, entity_bert_emb, args.num_relations, args.num_entities, args.num_kgs).to(args.device)
+    model = SSAGA(args, entity_bert_emb, args.num_relations, args.num_entities, args.num_kgs, text_entities).to(args.device)
     optimizer = optim.AdamW(model.parameters(), lr=args.lr,weight_decay=args.l2)
 
     print('model initialization done')
@@ -295,17 +298,19 @@ def main(args):
     for i in range(args.round):
         logging.info(f'Epoch: {i}')
 
-        model.train()
-        # Train alignment model (recover masked alignment pairs), Adjust optimizer learning rate
-        for param_group in optimizer.param_groups:  # change learning rate
-            param_group["lr"] = args.align_lr
+        if i >= args.start_align_train_epoch:
+            model.train()
+        
+            # Train alignment model (recover masked alignment pairs), Adjust optimizer learning rate
+            for param_group in optimizer.param_groups:  # change learning rate
+                param_group["lr"] = args.align_lr
 
 
-        for (kg0_name, kg1_name) in seeds_masked:
-            kg0 = kg_object_dict[kg0_name]
-            kg1 = kg_object_dict[kg1_name]
-            align_links = torch.LongTensor(seeds_masked[(kg0_name, kg1_name)]).to(args.device)
-            train_align_batch(args,align_links,optimizer,kg0,kg1,model)
+            for (kg0_name, kg1_name) in seeds_masked:
+                kg0 = kg_object_dict[kg0_name]
+                kg1 = kg_object_dict[kg1_name]
+                align_links = torch.LongTensor(seeds_masked[(kg0_name, kg1_name)]).to(args.device)
+                train_align_batch(args,align_links,optimizer,kg0,kg1,model)
 
 
         if (i>=args.burin_in_epoch) and (i%args.generation_freq==0):
@@ -319,14 +324,17 @@ def main(args):
                     kg1 = kg_object_dict[kg1_name]
                     seeds = seeds_all[(kg0_name, kg1_name)]
                     # print("Original link number is %d" % (len(seeds)))
-                    found = model.extend_seed_align_links(kg0, kg1, seeds, args.device,
+                    found_all, found_masked = model.extend_seed_align_links(kg0, kg1, seeds, args.device,
                                                           args.k_csls)  # find new one and update the subgraph_align, subgraph_kg list accordingly.
-                    if found != None:
-                        new_seeds = torch.cat([seeds, found], axis=0)
+                    if found_all != None:
+                        new_seeds = torch.cat([seeds, found_all], axis=0)
                         seeds_all[(kg0_name, kg1_name)] = new_seeds
                         logging.info(
                             "KG {} and KG {} Epoch {:d} Generated link number is {:d}".format(kg0_name, kg1_name, i,
-                                                                                              len(found)))
+                                                                                              len(found_all)))
+                    if found_masked != None:
+                        new_seeds_masked = torch.cat([seeds_masked[(kg0_name, kg1_name)], found_masked], axis=0)
+                        seeds_masked[(kg0_name, kg1_name)] = new_seeds_masked
 
                     logging.info(
                         "KG {} and KG {} Epoch {:d} Generated link number using time {:.2f} secs".format(kg0_name,

@@ -4,7 +4,9 @@ from src.gnn import GNN
 from src.utils import nodes_to_graph, Ranking_all_batch,subgrarph_list_from_alignment
 import torch.nn.functional as F
 import numpy as np
+import pudb
 
+from transformers import BertTokenizer, BertModel
 
 def l2distance(a, b):
     # dist = tf.sqrt(tf.reduce_sum(tf.square(a-b), axis=-1))
@@ -97,8 +99,24 @@ def compute_cosine_batch(k_neighbor_embedding,query_node_embedding):
 
 
 
+class EntityBERTEncoder(nn.Module):
+    def __init__(self, bert_model, entity_dim):
+          super(EntityBERTEncoder, self).__init__()
+          self.bert = BertModel.from_pretrained(bert_model)
+          ### New layers:
+          self.linear = nn.Linear(768, entity_dim)
+
+    def forward(self, ids, masks):
+          sequence_output, pooled_output = self.bert(ids, attention_mask=masks)
+
+          # sequence_output has the following shape: (batch_size, sequence_length, 768)
+          linear_output = self.linear( torch.mean(sequence_output, 1)) ## extract the 1st token's embeddings
+
+          return linear_output
+
+
 class SSAGA(nn.Module):
-    def __init__(self, args, entity_bert_emb,num_relations, num_entities, num_KGs):
+    def __init__(self, args, entity_bert_emb,num_relations, num_entities, num_KGs, text_entities):
         super(SSAGA, self).__init__()
         '''
         Assume relations are shared across KGs. Otherwise, put the embedding seperately in each KG module.
@@ -108,6 +126,7 @@ class SSAGA(nn.Module):
         self.num_KGs = num_KGs
         self.total_num_entity = num_entities
         self.entity_bert_emb = torch.FloatTensor(entity_bert_emb)
+        self.all_input_ids, self.all_attn_masks = text_entities
 
         assert entity_bert_emb.shape[0] == num_entities
 
@@ -119,6 +138,15 @@ class SSAGA(nn.Module):
         self.criterion_KG = nn.MarginRankingLoss(margin=args.transe_margin, reduction='mean')
         self.criterion_align = nn.MarginRankingLoss(margin=args.align_margin, reduction='mean')
 
+        # 0. BERT Token Embedding Initialization
+        self.bert_token_embedding_input_ids = nn.Embedding(self.total_num_entity, 10, dtype=torch.long)
+        self.bert_token_embedding_input_ids.weight.requires_grad = False
+        self.bert_token_embedding_input_ids.weight.data.copy_(self.all_input_ids)
+
+        # 1. Entity Embedding Initialization
+        self.bert_token_embedding_attn_masks = nn.Embedding(self.total_num_entity, 10, dtype=torch.long)
+        self.bert_token_embedding_attn_masks.weight.requires_grad = False
+        self.bert_token_embedding_attn_masks.weight.data.copy_(self.all_attn_masks)
 
         # 1. Embedding initialization
 
@@ -140,9 +168,19 @@ class SSAGA(nn.Module):
                                  out_dim=args.entity_dim,
                                  n_heads=args.n_heads, n_layers=args.n_layers_align, dropout=args.dropout)
 
+        # 3. Create a BERT encoder for entities
+        self.encoder_bert = EntityBERTEncoder(bert_model="bert-base-multilingual-cased", entity_dim=self.entity_dim)
+        self.encoder_bert.to(self.device)
+
     def forward_GNN_embedding(self, graph_input, GNN):
         # Original GNN implementation
-        x_features = self.entity_embedding_layer(graph_input.x)  # [num_nodes,d]
+        # x_features = self.entity_embedding_layer(graph_input.x)  # [num_nodes,d]
+        attn_masks = self.bert_token_embedding_attn_masks(graph_input.x)
+        input_ids = self.bert_token_embedding_input_ids(graph_input.x)
+
+        #pu.db
+        x_features = self.encoder_bert(input_ids, attn_masks)  # [num_nodes,d]
+
         edge_index = graph_input.edge_index
         edge_type_vector = self.relation_prior(graph_input.edge_attr)  # [num_edge]
 
@@ -393,12 +431,41 @@ class SSAGA(nn.Module):
             csls_links = torch.LongTensor(csls_links)
 
             # propagate to both subgraph_list_KG and subgraph_list_align    # TODO： whether need to sample and propagate to align_list？
-            subgrarph_list_from_alignment(csls_links, kg0, kg1, is_kg_list=True)
-            subgrarph_list_from_alignment(csls_links, kg0, kg1, is_kg_list=False)
+            
+            # mask out some of the csls links and send them to align; send all the csls links to KG
+            csls_links_masked, csls_links_all, csls_links_preserved = self.create_masked_preserved_all_links_from_links(csls_links, kg0.lang, kg1.lang, 0.1)
+            
+            subgrarph_list_from_alignment(csls_links_all, kg0, kg1, is_kg_list=True)
+            subgrarph_list_from_alignment(csls_links_preserved, kg0, kg1, is_kg_list=False)
 
-            return csls_links
+            return csls_links_all, csls_links_masked
+
+    def create_masked_preserved_all_links_from_links(self, links, lang1, lang2, preserved_ratio=0.5):
+        seeds_preserved = {}
+        seeds_masked = {}
+        seeds_all = {}
+
+        total_link_num = links.shape[0]
+        if preserved_ratio != 1.0:
+            preserved_idx = list(sorted(
+                np.random.choice(np.arange(total_link_num), int(total_link_num * preserved_ratio),
+                                    replace=False)))
+            masked_idx = list(filter(lambda x: x not in preserved_idx, np.arange(total_link_num)))
+
+            assert len(masked_idx) + len(preserved_idx) == total_link_num
+
+            preserved_links = links[preserved_idx, :]
+            masked_links = links[masked_idx, :]
+
+            seeds_masked[(lang1, lang2)] = torch.LongTensor(masked_links)
+            seeds_all[(lang1, lang2)] = torch.LongTensor(links)
+            seeds_preserved[(lang1, lang2)] = torch.LongTensor(preserved_links)  # to be used to generate the whole graph
+        else:
+            seeds_masked[(lang1, lang2)] = None
+            seeds_all[(lang1, lang2)] = torch.LongTensor(links)
+            seeds_preserved[(lang1, lang2)] = None
 
 
-
+        return seeds_masked, seeds_all, seeds_preserved
 
 
