@@ -6,7 +6,8 @@ import torch.nn.functional as F
 import numpy as np
 import pudb
 
-from transformers import BertTokenizer, BertModel
+from sentence_transformers import SentenceTransformer
+from transformers import BertModel, AutoModel
 
 def l2distance(a, b):
     # dist = tf.sqrt(tf.reduce_sum(tf.square(a-b), axis=-1))
@@ -101,18 +102,18 @@ def compute_cosine_batch(k_neighbor_embedding,query_node_embedding):
 
 class EntityBERTEncoder(nn.Module):
     def __init__(self, bert_model, entity_dim):
-          super(EntityBERTEncoder, self).__init__()
-          self.bert = BertModel.from_pretrained(bert_model)
-          ### New layers:
-          self.linear = nn.Linear(768, entity_dim)
+        super(EntityBERTEncoder, self).__init__()
+        self.bert = AutoModel.from_pretrained(bert_model)
+        ### New layers:
+        self.linear = nn.Linear(768, entity_dim)
 
     def forward(self, ids, masks):
-          sequence_output, pooled_output = self.bert(ids, attention_mask=masks)
+        sequence_output = self.bert(ids, attention_mask=masks).last_hidden_state
 
-          # sequence_output has the following shape: (batch_size, sequence_length, 768)
-          linear_output = self.linear( torch.mean(sequence_output, 1)) ## extract the 1st token's embeddings
+        # sequence_output has the following shape: (batch_size, sequence_length, 768)
+        linear_output = self.linear( torch.mean(sequence_output, 1)) ## extract the 1st token's embeddings
 
-          return linear_output
+        return linear_output
 
 
 class SSAGA(nn.Module):
@@ -126,7 +127,7 @@ class SSAGA(nn.Module):
         self.num_KGs = num_KGs
         self.total_num_entity = num_entities
         self.entity_bert_emb = torch.FloatTensor(entity_bert_emb)
-        self.all_input_ids, self.all_attn_masks = text_entities
+        self.bert_token_embedding_input_ids, self.bert_token_embedding_attn_masks = text_entities
 
         assert entity_bert_emb.shape[0] == num_entities
 
@@ -138,20 +139,22 @@ class SSAGA(nn.Module):
         self.criterion_KG = nn.MarginRankingLoss(margin=args.transe_margin, reduction='mean')
         self.criterion_align = nn.MarginRankingLoss(margin=args.align_margin, reduction='mean')
 
-        # 0. BERT Token Embedding Initialization
-        self.bert_token_embedding_input_ids = nn.Embedding(self.total_num_entity, 10, dtype=torch.long)
-        self.bert_token_embedding_input_ids.weight.requires_grad = False
-        self.bert_token_embedding_input_ids.weight.data.copy_(self.all_input_ids)
+        # # 0. BERT Token Embedding Initialization
+        # self.bert_token_embedding_input_ids = nn.Embedding(self.total_num_entity, 10, dtype=torch.long)
+        # self.bert_token_embedding_input_ids.weight.requires_grad = False
+        # self.bert_token_embedding_input_ids.weight.data.copy_(self.all_input_ids)
 
-        # 1. Entity Embedding Initialization
-        self.bert_token_embedding_attn_masks = nn.Embedding(self.total_num_entity, 10, dtype=torch.long)
-        self.bert_token_embedding_attn_masks.weight.requires_grad = False
-        self.bert_token_embedding_attn_masks.weight.data.copy_(self.all_attn_masks)
+        # # 1. Entity Embedding Initialization
+        # self.bert_token_embedding_attn_masks = nn.Embedding(self.total_num_entity, 10, dtype=torch.long)
+        # self.bert_token_embedding_attn_masks.weight.requires_grad = False
+        # self.bert_token_embedding_attn_masks.weight.data.copy_(self.all_attn_masks)
 
         # 1. Embedding initialization
 
-        self.entity_embedding_layer = nn.Embedding(self.total_num_entity, self.entity_dim)
-        nn.init.xavier_uniform_(self.entity_embedding_layer.weight)
+        # self.entity_embedding_layer = nn.Embedding(self.total_num_entity, self.entity_dim)
+        # self.entity_embedding_layer = nn.Embedding(self.total_num_entity, 768)
+        # self.entity_embedding_layer.weight.data.copy_(self.entity_bert_emb)
+        # nn.init.xavier_uniform_(self.entity_embedding_layer.weight)
 
         self.rel_embedding_layer = nn.Embedding(self.num_relations,self.relation_dim)
         nn.init.xavier_uniform_(self.rel_embedding_layer.weight)
@@ -169,17 +172,15 @@ class SSAGA(nn.Module):
                                  n_heads=args.n_heads, n_layers=args.n_layers_align, dropout=args.dropout)
 
         # 3. Create a BERT encoder for entities
-        self.encoder_bert = EntityBERTEncoder(bert_model="bert-base-multilingual-cased", entity_dim=self.entity_dim)
-        self.encoder_bert.to(self.device)
+        self.encoder_bert = EntityBERTEncoder(bert_model="sentence-transformers/distiluse-base-multilingual-cased", entity_dim=self.entity_dim)
 
     def forward_GNN_embedding(self, graph_input, GNN):
         # Original GNN implementation
-        # x_features = self.entity_embedding_layer(graph_input.x)  # [num_nodes,d]
-        attn_masks = self.bert_token_embedding_attn_masks(graph_input.x)
-        input_ids = self.bert_token_embedding_input_ids(graph_input.x)
-
-        #pu.db
+                
+        attn_masks = self.bert_token_embedding_attn_masks[graph_input.x].to(self.device)
+        input_ids = self.bert_token_embedding_input_ids[graph_input.x].to(self.device)
         x_features = self.encoder_bert(input_ids, attn_masks)  # [num_nodes,d]
+        
 
         edge_index = graph_input.edge_index
         edge_type_vector = self.relation_prior(graph_input.edge_attr)  # [num_edge]

@@ -8,10 +8,10 @@ from torch.utils.data import Dataset
 import torch
 from src.utils import get_language_list, get_subgraph_list, subgrarph_list_from_alignment
 import copy
-from transformers import BertTokenizer
+from transformers import AutoTokenizer
 from tqdm import tqdm
 
-bert_tokenizer = BertTokenizer.from_pretrained("bert-base-multilingual-cased")
+bert_tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/distiluse-base-multilingual-cased")
 
 class ParseData(object):
     def __init__(self, args):
