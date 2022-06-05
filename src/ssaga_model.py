@@ -427,14 +427,14 @@ class SSAGA(nn.Module):
                     csls_links.append([true_e0, e1])
 
         if len(csls_links) == 0:
-            return None
+            return None, None
         else:
-            csls_links = torch.LongTensor(csls_links)
-
+            csls_links = np.array(torch.LongTensor(csls_links))
+            csls_links_masked, csls_links_all, csls_links_preserved = self.create_masked_preserved_all_links_from_links(csls_links, kg0.lang, kg1.lang, 0.5)
+            # csls_links = torch.LongTensor(csls_links)
             # propagate to both subgraph_list_KG and subgraph_list_align    # TODO： whether need to sample and propagate to align_list？
             
             # mask out some of the csls links and send them to align; send all the csls links to KG
-            csls_links_masked, csls_links_all, csls_links_preserved = self.create_masked_preserved_all_links_from_links(csls_links, kg0.lang, kg1.lang, 0.1)
             
             subgrarph_list_from_alignment(csls_links_all, kg0, kg1, is_kg_list=True)
             subgrarph_list_from_alignment(csls_links_preserved, kg0, kg1, is_kg_list=False)
@@ -442,9 +442,9 @@ class SSAGA(nn.Module):
             return csls_links_all, csls_links_masked
 
     def create_masked_preserved_all_links_from_links(self, links, lang1, lang2, preserved_ratio=0.5):
-        seeds_preserved = {}
-        seeds_masked = {}
-        seeds_all = {}
+        seeds_preserved = None
+        seeds_masked = torch.LongTensor(links)
+        seeds_all = None
 
         total_link_num = links.shape[0]
         if preserved_ratio != 1.0:
@@ -458,13 +458,13 @@ class SSAGA(nn.Module):
             preserved_links = links[preserved_idx, :]
             masked_links = links[masked_idx, :]
 
-            seeds_masked[(lang1, lang2)] = torch.LongTensor(masked_links)
-            seeds_all[(lang1, lang2)] = torch.LongTensor(links)
-            seeds_preserved[(lang1, lang2)] = torch.LongTensor(preserved_links)  # to be used to generate the whole graph
+            seeds_masked = torch.LongTensor(masked_links)
+            seeds_all = torch.LongTensor(links)
+            seeds_preserved = torch.LongTensor(preserved_links)  # to be used to generate the whole graph
         else:
-            seeds_masked[(lang1, lang2)] = None
-            seeds_all[(lang1, lang2)] = torch.LongTensor(links)
-            seeds_preserved[(lang1, lang2)] = None
+            seeds_masked = None
+            seeds_all = torch.LongTensor(links)
+            seeds_preserved = None
 
 
         return seeds_masked, seeds_all, seeds_preserved
