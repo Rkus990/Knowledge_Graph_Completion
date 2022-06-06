@@ -9,7 +9,7 @@
 | Ashwath Radhachandran | 805725917 |
 | Rahul Kapur   | 405530587 |
 
-This repository is a PyTorch and Python implementation of the course project for UCLA CS 249 (Special Topics - Graph Neural Networks) S22 Course. The slides and report are in the files, `Multilingual Knowledge Graph Completion with Zero Seed Alignment.pdf` and `CS249-Group11-Report.pdf` respectively.
+This repository is a PyTorch and Python implementation of the course project for UCLA CS 249 (Special Topics - Graph Neural Networks) S22 Course. The slides and report are in the files, `group11_Slides.pdf` and `CS249-Group11-Report.pdf` respectively.
 
 All of our methods are mentioned in the report and all of our experiments are based on the DBP-5L data set (also present in the repo)The code is a direct modification of the official repository for the paper ["Multilingual Knowledge Graph Completion with Self-Supervised Adaptive Graph Alignment"](https://arxiv.org/abs/2203.14987), hosted in GitHub [here](https://github.com/amzn/ss-aga-kgc)
 
