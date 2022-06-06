@@ -117,7 +117,7 @@ class EntityBERTEncoder(nn.Module):
 
 
 class SSAGA(nn.Module):
-    def __init__(self, args, entity_bert_emb,num_relations, num_entities, num_KGs, text_entities):
+    def __init__(self, args, entity_bert_emb,num_relations, num_entities, num_KGs, text_entities, approach):
         super(SSAGA, self).__init__()
         '''
         Assume relations are shared across KGs. Otherwise, put the embedding seperately in each KG module.
@@ -128,6 +128,7 @@ class SSAGA(nn.Module):
         self.total_num_entity = num_entities
         self.entity_bert_emb = torch.FloatTensor(entity_bert_emb)
         self.bert_token_embedding_input_ids, self.bert_token_embedding_attn_masks = text_entities
+        self.approach = approach
 
         assert entity_bert_emb.shape[0] == num_entities
 
@@ -139,22 +140,10 @@ class SSAGA(nn.Module):
         self.criterion_KG = nn.MarginRankingLoss(margin=args.transe_margin, reduction='mean')
         self.criterion_align = nn.MarginRankingLoss(margin=args.align_margin, reduction='mean')
 
-        # # 0. BERT Token Embedding Initialization
-        # self.bert_token_embedding_input_ids = nn.Embedding(self.total_num_entity, 10, dtype=torch.long)
-        # self.bert_token_embedding_input_ids.weight.requires_grad = False
-        # self.bert_token_embedding_input_ids.weight.data.copy_(self.all_input_ids)
-
-        # # 1. Entity Embedding Initialization
-        # self.bert_token_embedding_attn_masks = nn.Embedding(self.total_num_entity, 10, dtype=torch.long)
-        # self.bert_token_embedding_attn_masks.weight.requires_grad = False
-        # self.bert_token_embedding_attn_masks.weight.data.copy_(self.all_attn_masks)
-
         # 1. Embedding initialization
 
-        # self.entity_embedding_layer = nn.Embedding(self.total_num_entity, self.entity_dim)
-        # self.entity_embedding_layer = nn.Embedding(self.total_num_entity, 768)
-        # self.entity_embedding_layer.weight.data.copy_(self.entity_bert_emb)
-        # nn.init.xavier_uniform_(self.entity_embedding_layer.weight)
+        self.entity_embedding_layer = nn.Embedding(self.total_num_entity, self.entity_dim)
+        nn.init.xavier_uniform_(self.entity_embedding_layer.weight)
 
         self.rel_embedding_layer = nn.Embedding(self.num_relations,self.relation_dim)
         nn.init.xavier_uniform_(self.rel_embedding_layer.weight)
@@ -176,10 +165,13 @@ class SSAGA(nn.Module):
 
     def forward_GNN_embedding(self, graph_input, GNN):
         # Original GNN implementation
-                
-        attn_masks = self.bert_token_embedding_attn_masks[graph_input.x].to(self.device)
-        input_ids = self.bert_token_embedding_input_ids[graph_input.x].to(self.device)
-        x_features = self.encoder_bert(input_ids, attn_masks)  # [num_nodes,d]
+
+        if self.approach == 2:
+            x_features = self.entity_embedding_layer(graph_input.x)  # [num_nodes,d]
+        else:
+            attn_masks = self.bert_token_embedding_attn_masks[graph_input.x].to(self.device)
+            input_ids = self.bert_token_embedding_input_ids[graph_input.x].to(self.device)
+            x_features = self.encoder_bert(input_ids, attn_masks)  # [num_nodes,d]
         
 
         edge_index = graph_input.edge_index

@@ -62,5 +62,10 @@ There are some key options of this scrips:
 
 The details of other optional hyperparameters can be found in run_model.py.
 
+For various apporaches implemented by us in the Course Project:
+1. Apporach 1: Use the generated seed alignments in `datasetdbp5l/seed_alignlinks_bert_generated` with the original SS-AGA code [here](https://github.com/amzn/ss-aga-kgc).
+2. Approach 2: Use param approach 2 in the command line execution
+3. Approach 3: Default paramters. [Note: Requires high GPU Resources to run]
+
 ## References
 [1] [Huang, Z., Li, Z., Jiang, H., Cao, T., Lu, H., Yin, B., ... & Wang, W. (2022). Multilingual Knowledge Graph Completion with Self-Supervised Adaptive Graph Alignment.](https://arxiv.org/abs/2203.14987)

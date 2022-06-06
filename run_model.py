@@ -107,6 +107,7 @@ def parse_args(args=None):
     # Others
     parser.add_argument('--use_default', action="store_true", help="Use default setting.")
     parser.add_argument('--alias', default="run", type=str, help="how many align links to preserve")
+    parser.add_argument('--approach', default=3, type=int, help="which apporach to run")
 
     return parser.parse_args(args)
 
@@ -280,7 +281,7 @@ def main(args):
 
 
     # Build Model
-    model = SSAGA(args, entity_bert_emb, args.num_relations, args.num_entities, args.num_kgs, text_entities).to(args.device)
+    model = SSAGA(args, entity_bert_emb, args.num_relations, args.num_entities, args.num_kgs, text_entities, args.approach).to(args.device)
     optimizer = optim.AdamW(model.parameters(), lr=args.lr,weight_decay=args.l2)
 
     print('model initialization done')
